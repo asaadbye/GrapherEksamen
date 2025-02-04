@@ -14,6 +14,15 @@
   </head>
 
   <body>
+    <input type="text" class="input" onkeydown="keydown(this)"/>
+    <script >
+      function keydown(elem) {
+        if(event.keyCode == 13) {
+            evaluateInput(elem.value)
+            elem.value = ""
+        }
+      }
+    </script>
     <script src="sketch.js"></script>
   </body>
 </html>

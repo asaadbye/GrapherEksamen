@@ -43,22 +43,31 @@ class Graph {
     this.drawAxisLines()
   }
   drawFunctions(){
+    // for(var func of this.functions){
+    //   stroke(func.strokeColor)
+    //   strokeWeight(this.funcStrokeWeight)
+    //   fill(this.bgColor)
+    //   beginShape()
+    //   let firstVector = func.drawingVectors[0]
+    //   let lastVector = func.drawingVectors[func.drawingVectors.length-1]
+    //   curveVertex(firstVector.x, firstVector.y)
+    //   for(let i = 0; i < func.drawingVectors.length; i++){
+    //     let vector = func.drawingVectors[i]
+    //     curveVertex(vector.x, vector.y)
+    //     //line(firstVector.x, firstVector.y, nextVector.x, nextVector.y)
+    //   }
+    //   curveVertex(lastVector.x, lastVector.y)
+    //   endShape()
+    //   fill('black')
+    // }
     for(var func of this.functions){
       stroke(func.strokeColor)
       strokeWeight(this.funcStrokeWeight)
-      fill('red')
-      beginShape()
-      let firstVector = func.drawingVectors[0]
-      let lastVector = func.drawingVectors[func.drawingVectors.length-1]
-      curveVertex(firstVector.x, firstVector.y)
-      for(let i = 0; i < func.drawingVectors.length; i++){
-        let vector = func.drawingVectors[i]
-        curveVertex(vector.x, vector.y)
-        //line(firstVector.x, firstVector.y, nextVector.x, nextVector.y)
+      for(let i = 0; i < func.drawingVectors.length - 1; i++){
+        let firstVector = func.drawingVectors[i]
+        let nextVector = func.drawingVectors[i+1]
+        line(firstVector.x, firstVector.y, nextVector.x, nextVector.y)
       }
-      curveVertex(lastVector.x, lastVector.y)
-      endShape()
-      fill('black')
     }
   }
   drawAxisLines(){
@@ -188,19 +197,13 @@ let canvasY = 500
 let graphArgs = {
   spanX: 20,
   spanY: 20,
-  zeroPos: new Vector2(250, 250)
+  zeroPos: new Vector2(250, 250),
+  evaluationIncrements: 200
 }
 let graph = new Graph(graphArgs)
 
 function setup() {
   createCanvas(canvasX, canvasY);
-  let sineFunc = new Function({equation: 'x^2'})
-  let linearFunc = new Function({equation: 'x+10'})
-  graph.addFunction(linearFunc)
-  graph.addFunction(sineFunc)
-  
-  
-  
 }
 
 function draw() {
@@ -225,4 +228,9 @@ function mouseReleased() {
   graph.recalculateAllFunctions()
   startZeroPosX = graph.zeroPos.x
   startZeroPosY = graph.zeroPos.y
+}
+// This function gets called from the input bar
+function evaluateInput(value){
+  let func = new Function({equation: value})
+  graph.addFunction(func)
 }
