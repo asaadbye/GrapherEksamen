@@ -203,7 +203,8 @@ let graphArgs = {
 let graph = new Graph(graphArgs)
 
 function setup() {
-  createCanvas(canvasX, canvasY);
+  let canvas  = createCanvas(canvasX, canvasY);
+  canvas.parent("canvas-container"); // Attach canvas to container
 }
 
 function draw() {

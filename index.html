@@ -14,15 +14,37 @@
   </head>
 
   <body>
-    <input type="text" class="input" onkeydown="keydown(this)"/>
-    <script >
+    <div class="top-container">
+      <h1>Grapher</h1>
+    </div>
+  
+    <div class="main-container">
+      <div id="canvas-container"></div>
+      <div class="bottom-container">
+        
+      </div>
+  
+      <div class="right-container">
+        <input type="text" class="input" onkeydown="keydown(this)" />
+        <div class="functions-container">
+          <h1>Grapher</h1>
+          <h1>Grapher</h1>
+          <h1>Grapher</h1>
+          <h1>Grapher</h1>
+          <h1>Grapher</h1>
+        </div>
+      </div>
+    </div>
+  
+    <script>
       function keydown(elem) {
-        if(event.keyCode == 13) {
-            evaluateInput(elem.value)
-            elem.value = ""
+        if (event.keyCode == 13) {
+          evaluateInput(elem.value);
+          elem.value = "";
         }
       }
     </script>
     <script src="sketch.js"></script>
   </body>
+  
 </html>
