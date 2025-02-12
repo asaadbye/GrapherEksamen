@@ -10,7 +10,7 @@ class Function{
   constructor({equation}){
     this.equation = equation
     this.drawingVectors = []
-    this.strokeColor = color(random(255), random(255), random(255))
+    this.strokeColor = randomColor()
   }
   evaluateExpression(x){
     return math.evaluate(this.equation, {x: x})
@@ -231,6 +231,66 @@ function mouseReleased() {
 }
 // This function gets called from the input bar
 function evaluateInput(value){
-  let func = new Function({equation: value})
-  graph.addFunction(func)
+  // Check if input is a function
+  if(!value.includes(":")){
+    if(hasOnlyXOrNoVariables(value)){
+      let func = new Function({equation: value})
+      graph.addFunction(func)
+    }
+    else {
+      alert("Something is wrong with the input: " + value)
+    }
+    
+  }
+}
+
+
+function hasOnlyXOrNoVariables(expression) {
+// Parse the expression into a tree
+const node = math.parse(expression);
+
+// List of recognized math functions
+const functions = new Set(Object.keys(math));
+
+// Collect variables from the expression
+const variables = new Set();
+
+node.traverse(function (node) {
+    if (node.isSymbolNode && !functions.has(node.name)) {
+        variables.add(node.name);
+    }
+});
+
+// Return true if the expression contains 0 or only "x"
+return variables.size === 0 || (variables.size === 1 && variables.has("x"));
+}
+// Get random color with high contrast
+function randomColor(){
+  let rgbColorArray = [255, 0, random(255)]
+  shuffleArray(rgbColorArray)
+  return color(rgbColorArray[0], rgbColorArray[1], rgbColorArray[2])
+}
+
+/* Randomize array in-place using Durstenfeld shuffle algorithm */ // https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+function shuffleArray(array) {
+  for (var i = array.length - 1; i >= 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
+  }
+}
+
+//Function getting called to update span
+
+function updateXSpan(value){
+  graph.spanX = value
+  graph.incrementSizeX = graph.getIncrement(value)
+  graph.recalculateAllFunctions()
+}
+
+function updateYSpan(value){
+  graph.spanY = value
+  graph.incrementSizeY = graph.getIncrement(value)
+  graph.recalculateAllFunctions()
 }
