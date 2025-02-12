@@ -14,29 +14,37 @@
   </head>
 
   <body>
-    <input type="text" placeholder="Enter Command" class="input" onkeydown="keydown(this)"/>
-    <label for="xAxis">X:</label>
-    <input type="number" id="xAxis" name="xAxis" min="0" value="20" onkeydown="updateSpanX(this)"/>
-    <label for="yAxis">Y:</label>
-    <input type="number" id="yAxis" name="yAxis" min="0" value="20" onkeydown="updateSpanY(this)"/>
-    <script >
+    <div class="top-container">
+      <h1>Grapher</h1>
+    </div>
+  
+    <div class="main-container">
+      <div id="canvas-container"></div>
+      <div class="bottom-container">
+        
+      </div>
+  
+      <div class="right-container">
+        <input type="text" class="input" onkeydown="keydown(this)" />
+        <div class="functions-container">
+          <h1>Grapher</h1>
+          <h1>Grapher</h1>
+          <h1>Grapher</h1>
+          <h1>Grapher</h1>
+          <h1>Grapher</h1>
+        </div>
+      </div>
+    </div>
+  
+    <script>
       function keydown(elem) {
-        if(event.keyCode == 13) {
-            evaluateInput(elem.value)
-            elem.value = ""
+        if (event.keyCode == 13) {
+          evaluateInput(elem.value);
+          elem.value = "";
         }
-      }
-      function updateSpanX(elem){
-        if(event.keyCode == 13) {
-          updateXSpan(elem.value)
-        }   
-      }
-      function updateSpanY(elem){
-        if(event.keyCode == 13) {
-          updateYSpan(elem.value)
-        }   
       }
     </script>
     <script src="sketch.js"></script>
   </body>
+  
 </html>
