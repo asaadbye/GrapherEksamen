@@ -8,6 +8,7 @@ class Vector2{
 }
 class Function{
   constructor({equation}){
+    this.name = getNextFunctionName()
     this.equation = equation
     this.drawingVectors = []
     this.strokeColor = randomColor()
@@ -236,6 +237,7 @@ function evaluateInput(value){
   if(!value.includes(":")){
     if(hasOnlyXOrNoVariables(value)){
       let func = new Function({equation: value})
+      addFunctionElement(func)
       graph.addFunction(func)
     }
     else {
@@ -272,6 +274,42 @@ function randomColor(){
   return color(rgbColorArray[0], rgbColorArray[1], rgbColorArray[2])
 }
 
+function getNextFunctionName() {
+  const alphabet = "fghijklmnoqrstuvw"; // Allowed letters
+  let existingNames = new Set(graph.functions.map(func => func.name));
+
+  // Function to generate name sequences similar to Excel columns
+  function generateNextName(currentName) {
+    let nameArray = currentName.split(""); // Convert name to an array
+    let i = nameArray.length - 1; // Start from the last character
+
+    while (i >= 0) {
+      let nextCharIndex = alphabet.indexOf(nameArray[i]) + 1;
+
+      if (nextCharIndex < alphabet.length) {
+        nameArray[i] = alphabet[nextCharIndex]; // Increment the last character
+        return nameArray.join("");
+      } else {
+        nameArray[i] = alphabet[0]; // Reset current character and move to next
+        i--;
+      }
+    }
+
+    // If all characters are 'z', add another letter
+    return alphabet[0] + nameArray.join("");
+  }
+
+  // Start with 'f'
+  let newName = alphabet[0];
+
+  // Find the next available unique name
+  while (existingNames.has(newName)) {
+    newName = generateNextName(newName);
+  }
+
+  return newName;
+}
+
 /* Randomize array in-place using Durstenfeld shuffle algorithm */ // https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
 function shuffleArray(array) {
   for (var i = array.length - 1; i >= 0; i--) {
@@ -294,4 +332,77 @@ function updateYSpan(value){
   graph.spanY = value
   graph.incrementSizeY = graph.getIncrement(value)
   graph.recalculateAllFunctions()
+}
+function deleteFuncFromGraph(funcName){
+  print(funcName)
+  graph.functions = graph.functions.filter(item => funcName !== item.name)
+}
+
+function addFunctionElement(func) {
+  // Get the functions list container
+  let functionsList = document.getElementById("functions-container");
+
+  // Create the function element
+  let functionElement = document.createElement("div");
+  functionElement.classList.add("function-element");
+
+  // Create the color box
+  let colorBox = document.createElement("div");
+  colorBox.classList.add("color-box");
+  colorBox.style.backgroundColor = func.strokeColor; // Set color dynamically
+
+  // Create the function text
+  let functionText = document.createElement("span");
+  functionText.classList.add("function-text");
+  functionText.textContent = func.name + "(x) = " + func.equation;
+
+  // Create the 3-dot menu button
+  let menuButton = document.createElement("button");
+  menuButton.classList.add("menu-button");
+  menuButton.innerHTML = "⋮";
+
+  // Create the dropdown menu
+  let dropdownMenu = document.createElement("div");
+  dropdownMenu.classList.add("dropdown-menu");
+
+  // Create Edit button
+  let editButton = document.createElement("button");
+  editButton.textContent = "Edit";
+  editButton.onclick = function () {
+    alert("Edit Function: " + func.equation);
+  };
+
+  // Create Delete button
+  let deleteButton = document.createElement("button");
+  deleteButton.textContent = "Delete";
+  deleteButton.onclick = function () {
+    deleteFuncFromGraph(func.name)
+    functionsList.removeChild(functionElement);
+  };
+
+  // Append buttons to dropdown
+  dropdownMenu.appendChild(editButton);
+  dropdownMenu.appendChild(deleteButton);
+
+  // Append all elements
+  functionElement.appendChild(colorBox);
+  functionElement.appendChild(functionText);
+  functionElement.appendChild(menuButton);
+  functionElement.appendChild(dropdownMenu);
+
+  // Append function element to the list
+  functionsList.appendChild(functionElement);
+
+  // Add event listener to show/hide dropdown
+  menuButton.addEventListener("click", function () {
+    dropdownMenu.style.display =
+      dropdownMenu.style.display === "block" ? "none" : "block";
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener("click", function (event) {
+    if (!functionElement.contains(event.target)) {
+      dropdownMenu.style.display = "none";
+    }
+  });
 }
