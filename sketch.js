@@ -1,14 +1,22 @@
 
+
 class Vector2{
   constructor(x, y){
     this.x = x
     this.y = y
-    this.drawingVectors = []
+    this.drawX 
+    this.drawY
+  }
+}
+class ListOfPoints {
+  constructor(name, points=[]){
+    this.name = name
+    this.points = points
   }
 }
 class Function{
-  constructor({equation}){
-    this.name = getNextFunctionName()
+  constructor({equation, name=getNextFunctionName()}){
+    this.name = name
     this.equation = equation
     this.drawingVectors = []
     this.strokeColor = randomColor()
@@ -23,6 +31,7 @@ class Graph {
     this.spanY = spanY
     this.zeroPos = zeroPos
     this.functions = functions
+    this.listWithListOfPoints = []
     this.evaluationIncrements = evaluationIncrements
     this.bgColor = bgColor
     this.incrementSizeX = this.getIncrement(spanX)
@@ -40,6 +49,7 @@ class Graph {
     background(this.bgColor)
     if(this.isDragging === false){
       this.drawFunctions()
+      this.drawPoints()
     }
     this.drawAxisLines()
   }
@@ -68,6 +78,15 @@ class Graph {
         let firstVector = func.drawingVectors[i]
         let nextVector = func.drawingVectors[i+1]
         line(firstVector.x, firstVector.y, nextVector.x, nextVector.y)
+      }
+    }
+  }
+  drawPoints(){
+    for(var listOfPoints of this.listWithListOfPoints){
+      for(var point of listOfPoints.points){
+        stroke("black")
+        fill("black")
+        circle(point.drawX, point.drawY, 4)
       }
     }
   }
@@ -166,6 +185,7 @@ class Graph {
   canvasToCoordinateY(y) {
     return ((y - canvasY/2) / -canvasY) * this.spanY;
   }
+
   calculateDrawingVectors(func){
     // Create Coordinates where the function should be drawn
     let incrementSize = this.spanX / this.evaluationIncrements
@@ -181,6 +201,14 @@ class Graph {
     }
     func.drawingVectors = drawingVectors
   }
+  getGraphStartValue(){
+    let startValue = -this.spanX/2 - this.canvasToCoordinateX(this.zeroPos.x)
+    return startValue
+  }
+  getGraphEndValue(){
+    let startValue = -this.spanX/2 - this.canvasToCoordinateX(this.zeroPos.x)
+    return startValue + this.spanX
+  }
   addFunction(func){
     this.calculateDrawingVectors(func)
     this.functions.push(func)
@@ -190,7 +218,28 @@ class Graph {
       this.calculateDrawingVectors(func)
     }
   }
-    
+  addListOfPoints(listOfPoints){
+    for(var point of listOfPoints.points){
+      this.pointToCanvas(point)
+    }
+    this.listWithListOfPoints.push(listOfPoints)
+  }
+  pointToCanvas(point){
+    point.drawX = this.coordinateXToCanvas(point.x)
+    point.drawY = this.coordinateYToCanvas(point.y)
+  }
+  recalculateAllPoints(){
+    for(var listOfPoints of this.listWithListOfPoints){
+      for(var point of listOfPoints.points){
+        this.pointToCanvas(point)
+      }
+    }
+  }
+
+  recalculateAll(){
+    this.recalculateAllFunctions()
+    this.recalculateAllPoints()
+  }
 }
 
 let canvasX = 500
@@ -227,7 +276,7 @@ function mouseDragged(){
 }
 function mouseReleased() {
   graph.isDragging = false
-  graph.recalculateAllFunctions()
+  graph.recalculateAll()
   startZeroPosX = graph.zeroPos.x
   startZeroPosY = graph.zeroPos.y
 }
@@ -323,86 +372,109 @@ function shuffleArray(array) {
 //Function getting called to update span
 
 function updateXSpan(value){
-  graph.spanX = value
+  graph.spanX = parseFloat(value)
   graph.incrementSizeX = graph.getIncrement(value)
   graph.recalculateAllFunctions()
 }
 
 function updateYSpan(value){
-  graph.spanY = value
+  graph.spanY = parseFloat(value)
   graph.incrementSizeY = graph.getIncrement(value)
   graph.recalculateAllFunctions()
 }
 function deleteFuncFromGraph(funcName){
-  print(funcName)
   graph.functions = graph.functions.filter(item => funcName !== item.name)
 }
-
-function addFunctionElement(func) {
-  // Get the functions list container
-  let functionsList = document.getElementById("functions-container");
-
-  // Create the function element
-  let functionElement = document.createElement("div");
-  functionElement.classList.add("function-element");
-
-  // Create the color box
-  let colorBox = document.createElement("div");
-  colorBox.classList.add("color-box");
-  colorBox.style.backgroundColor = func.strokeColor; // Set color dynamically
-
-  // Create the function text
-  let functionText = document.createElement("span");
-  functionText.classList.add("function-text");
-  functionText.textContent = func.name + "(x) = " + func.equation;
-
-  // Create the 3-dot menu button
-  let menuButton = document.createElement("button");
-  menuButton.classList.add("menu-button");
-  menuButton.innerHTML = "⋮";
-
-  // Create the dropdown menu
-  let dropdownMenu = document.createElement("div");
-  dropdownMenu.classList.add("dropdown-menu");
-
-  // Create Edit button
-  let editButton = document.createElement("button");
-  editButton.textContent = "Edit";
-  editButton.onclick = function () {
-    alert("Edit Function: " + func.equation);
-  };
-
-  // Create Delete button
-  let deleteButton = document.createElement("button");
-  deleteButton.textContent = "Delete";
-  deleteButton.onclick = function () {
-    deleteFuncFromGraph(func.name)
-    functionsList.removeChild(functionElement);
-  };
-
-  // Append buttons to dropdown
-  dropdownMenu.appendChild(editButton);
-  dropdownMenu.appendChild(deleteButton);
-
-  // Append all elements
-  functionElement.appendChild(colorBox);
-  functionElement.appendChild(functionText);
-  functionElement.appendChild(menuButton);
-  functionElement.appendChild(dropdownMenu);
-
-  // Append function element to the list
-  functionsList.appendChild(functionElement);
-
-  // Add event listener to show/hide dropdown
-  menuButton.addEventListener("click", function () {
-    dropdownMenu.style.display =
-      dropdownMenu.style.display === "block" ? "none" : "block";
-  });
-
-  // Close dropdown when clicking outside
-  document.addEventListener("click", function (event) {
-    if (!functionElement.contains(event.target)) {
-      dropdownMenu.style.display = "none";
-    }
-  });
+function deleteListOfPoints(listName){
+  graph.listWithListOfPoints = graph.listWithListOfPoints.filter(item => listName !== item.name)
 }
+function deriveFunc(func){
+  let derivativeExpression = math.derivative(func.equation, 'x').toString()
+  let derivativeFunction = new Function({equation: derivativeExpression, name: func.name + "'"})
+  addFunctionElement(derivativeFunction)
+  graph.addFunction(derivativeFunction)
+}
+function findRootsInRange(f, lowerBound=-10, upperBound=10, nSteps = 20000) {
+  // Make sure numeric.js is loaded in your environment
+  if (typeof numeric === 'undefined') {
+    throw new Error('numeric.js is required but not loaded.');
+  }
+
+  const solutions = [];
+  const stepSize = (upperBound - lowerBound) / nSteps;
+
+  let x0 = lowerBound;
+  let y0 = f(x0);
+
+  for (let i = 1; i <= nSteps; i++) {
+    const x1 = lowerBound + i * stepSize;
+    const y1 = f(x1);
+
+    // Check if we exactly hit a zero at x0
+    if (Math.abs(y0) < 1e-14) {
+      solutions.push(x0);
+    }
+    // Check if there's a sign change between x0 and x1
+    else if (y0 * y1 < 0) {
+      // We have a bracket [x0, x1], so pick an initial guess (say midpoint)
+      const xMid = 0.5 * (x0 + x1);
+
+      // Use numeric.uncmin to minimize f(x)^2
+      const result = numeric.uncmin(
+        (xVal) => {
+          const val = f(xVal);
+          return val * val;
+        },
+        xMid
+      );
+
+      solutions.push(result.solution);
+    }
+
+    x0 = x1;
+    y0 = y1;
+  }
+
+  // Optionally, filter out duplicates or "near duplicates" (roots very close together)
+  // For example:
+  const uniqueSolutions = [];
+  const tolerance = 1e-7;
+  solutions.sort((a, b) => a - b);
+
+  for (let i = 0; i < solutions.length; i++) {
+    if (
+      i === 0 ||
+      Math.abs(solutions[i] - solutions[i - 1]) > tolerance
+    ) {
+      uniqueSolutions.push(solutions[i]);
+    }
+  }
+
+  return uniqueSolutions;
+}
+function getRoots(func){
+  print(graph.getGraphStartValue())
+  print(graph.getGraphEndValue())
+  function f(x){
+    const expression = func.equation
+    return math.evaluate(expression, {x: x})
+  }
+  const xValues = findRootsInRange(f, graph.getGraphStartValue(), graph.getGraphEndValue())
+  print(xValues)
+  if(xValues.length !== 0){
+    let points = []
+    for(x of xValues){
+      let point = new Vector2(x, f(x))
+      points.push(point)
+    }
+    let listOfPoints = new ListOfPoints(func.name + "Roots", points)
+    graph.addListOfPoints(listOfPoints)
+    addListOfPointsElement(listOfPoints)
+  }
+  
+}
+function getExtrema(func){
+  const derivative = math.derivative(func.equation, 'x').toString()
+  function fDerivative(x){
+    const expression = derivative
+    return
